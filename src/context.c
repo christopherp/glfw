@@ -217,6 +217,12 @@ const _GLFWfbconfig* _glfwChooseFBConfig(const _GLFWfbconfig* desired,
             continue;
         }
 
+        if (desired->transparent > 0 && current->transparent == 0)
+        {
+            // transparent is a hard constraint
+            continue;
+        }
+
         // Count number of missing buffers
         {
             missing = 0;
@@ -673,4 +679,3 @@ GLFWAPI GLFWglproc glfwGetProcAddress(const char* procname)
 
     return _glfwPlatformGetProcAddress(procname);
 }
-

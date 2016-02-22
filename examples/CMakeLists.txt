@@ -34,11 +34,12 @@ add_executable(heightmap WIN32 MACOSX_BUNDLE heightmap.c ${ICON} ${GLAD})
 add_executable(particles WIN32 MACOSX_BUNDLE particles.c ${ICON} ${TINYCTHREAD} ${GETOPT} ${GLAD})
 add_executable(simple WIN32 MACOSX_BUNDLE simple.c ${ICON} ${GLAD})
 add_executable(splitview WIN32 MACOSX_BUNDLE splitview.c ${ICON} ${GLAD})
+add_executable(transparent WIN32 MACOSX_BUNDLE transparent.c ${ICON} ${GLAD})
 add_executable(wave WIN32 MACOSX_BUNDLE wave.c ${ICON} ${GLAD})
 
 target_link_libraries(particles "${CMAKE_THREAD_LIBS_INIT}" "${RT_LIBRARY}")
 
-set(WINDOWS_BINARIES boing gears heightmap particles simple splitview wave)
+set(WINDOWS_BINARIES boing gears heightmap particles simple splitview transparent wave)
 
 set_target_properties(${WINDOWS_BINARIES} PROPERTIES FOLDER "GLFW3/Examples")
 
@@ -55,6 +56,7 @@ if (APPLE)
     set_target_properties(particles PROPERTIES MACOSX_BUNDLE_BUNDLE_NAME "Particles")
     set_target_properties(simple PROPERTIES MACOSX_BUNDLE_BUNDLE_NAME "Simple")
     set_target_properties(splitview PROPERTIES MACOSX_BUNDLE_BUNDLE_NAME "SplitView")
+    set_target_properties(transparent PROPERTIES MACOSX_BUNDLE_BUNDLE_NAME "Transparent")
     set_target_properties(wave PROPERTIES MACOSX_BUNDLE_BUNDLE_NAME "Wave")
 
     set_target_properties(${WINDOWS_BINARIES} PROPERTIES
@@ -64,4 +66,3 @@ if (APPLE)
                           MACOSX_BUNDLE_ICON_FILE glfw.icns
                           MACOSX_BUNDLE_INFO_PLIST "${GLFW_SOURCE_DIR}/CMake/MacOSXBundleInfo.plist.in")
 endif()
-

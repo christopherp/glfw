@@ -131,10 +131,21 @@ typedef BOOL (WINAPI * CHANGEWINDOWMESSAGEFILTEREX_T)(HWND,UINT,DWORD,PCHANGEFIL
 #define _glfw_ChangeWindowMessageFilterEx _glfw.win32.user32.ChangeWindowMessageFilterEx
 
 // dwmapi.dll function pointer typedefs
+typedef struct _DWM_BLURBEHIND
+{
+    DWORD dwFlags;
+    BOOL fEnable;
+    HRGN hRgnBlur;
+    BOOL fTransitionOnMaximized;
+} DWM_BLURBEHIND, *PDWM_BLURBEHIND;
+//#define _glfw_DWM_BB_ENABLE         0x00000001
+//#define _glfw_DWM_BB_BLURREGION     0x00000002
 typedef HRESULT (WINAPI * DWMISCOMPOSITIONENABLED_T)(BOOL*);
 typedef HRESULT (WINAPI * DWMFLUSH_T)(VOID);
+typedef HRESULT (WINAPI * DWMENABLEBLURBEHINDWINDOW_T)(HWND, const DWM_BLURBEHIND*);
 #define _glfw_DwmIsCompositionEnabled _glfw.win32.dwmapi.DwmIsCompositionEnabled
 #define _glfw_DwmFlush _glfw.win32.dwmapi.DwmFlush
+#define _glfw_DwmEnableBlurBehindWindow _glfw.win32.dwmapi.DwmEnableBlurBehindWindow
 
 // shcore.dll function pointer typedefs
 typedef HRESULT (WINAPI * SETPROCESSDPIAWARENESS_T)(PROCESS_DPI_AWARENESS);
@@ -231,6 +242,7 @@ typedef struct _GLFWlibraryWin32
         HINSTANCE       instance;
         DWMISCOMPOSITIONENABLED_T DwmIsCompositionEnabled;
         DWMFLUSH_T      DwmFlush;
+        DWMENABLEBLURBEHINDWINDOW_T DwmEnableBlurBehindWindow;
     } dwmapi;
 
     // shcore.dll

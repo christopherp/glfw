@@ -214,7 +214,7 @@ if (_GLFW_X11)
 
     # Set up library and include paths
     list(APPEND glfw_INCLUDE_DIRS "${X11_X11_INCLUDE_PATH}")
-    list(APPEND glfw_LIBRARIES "${X11_X11_LIB}" "${CMAKE_THREAD_LIBS_INIT}")
+    list(APPEND glfw_LIBRARIES "${X11_X11_LIB}" Xrender "${CMAKE_THREAD_LIBS_INIT}")
 
     # Check for XRandR (modern resolution switching and gamma control)
     if (NOT X11_Xrandr_FOUND)

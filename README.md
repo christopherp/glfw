@@ -210,6 +210,7 @@ skills.
  - Andri Pálsson
  - Peoro
  - Braden Pellett
+ - Christopher Pelloux
  - Arturo J. Pérez
  - Emmanuel Gil Peyrot
  - Cyril Pichard

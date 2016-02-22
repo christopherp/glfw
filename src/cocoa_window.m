@@ -322,7 +322,8 @@ static int translateKey(unsigned int key)
 
 - (BOOL)isOpaque
 {
-    return YES;
+    // The default and required for transparent windows
+    return !window->transparent;
 }
 
 - (BOOL)canBecomeKeyView
@@ -867,6 +868,11 @@ static GLFWbool createWindow(_GLFWwindow* window,
     [window->ns.object setAcceptsMouseMovedEvents:YES];
     [window->ns.object setContentView:window->ns.view];
     [window->ns.object setRestorable:NO];
+    if (window->transparent)
+    {
+        [window->ns.object setOpaque:NO];
+        [window->ns.object setBackgroundColor:[NSColor clearColor]];
+    }
 
     return GLFW_TRUE;
 }
@@ -1371,4 +1377,3 @@ GLFWAPI id glfwGetCocoaWindow(GLFWwindow* handle)
     _GLFW_REQUIRE_INIT_OR_RETURN(nil);
     return window->ns.object;
 }
-

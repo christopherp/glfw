@@ -236,6 +236,15 @@ static GLFWbool choosePixelFormat(_GLFWwindow* window,
                 u->doublebuffer = GLFW_TRUE;
         }
 
+        // WGL_ARB_pixel_format doesn't allow us to query the pixel format attribute
+        // PFD_SUPPORT_COMPOSITION so we must do it here the legacy way
+        PIXELFORMATDESCRIPTOR pfd;
+        if (DescribePixelFormat(window->context.wgl.dc, n, sizeof(PIXELFORMATDESCRIPTOR), &pfd))
+        {
+            if (pfd.dwFlags & PFD_SUPPORT_COMPOSITION)        // aero
+                u->transparent = GLFW_TRUE;
+        }
+
         u->wgl = n;
         usableCount++;
     }

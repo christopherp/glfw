@@ -644,6 +644,7 @@ extern "C" {
 #define GLFW_SRGB_CAPABLE           0x0002100E
 #define GLFW_REFRESH_RATE           0x0002100F
 #define GLFW_DOUBLEBUFFER           0x00021010
+#define GLFW_TRANSPARENT            0x00021011
 
 #define GLFW_CLIENT_API             0x00022001
 #define GLFW_CONTEXT_VERSION_MAJOR  0x00022002
@@ -738,7 +739,7 @@ extern "C" {
  *  @sa glfwGetProcAddress
  *
  *  @since Added in version 3.0.
- 
+
  *  @ingroup context
  */
 typedef void (*GLFWglproc)(void);
@@ -3940,4 +3941,3 @@ GLFWAPI VkResult glfwCreateWindowSurface(VkInstance instance, GLFWwindow* window
 #endif
 
 #endif /* _glfw3_h_ */
-

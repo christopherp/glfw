@@ -72,6 +72,8 @@ static GLFWbool chooseFBConfig(const _GLFWfbconfig* desired, GLXFBConfig* result
 
     usableConfigs = calloc(nativeCount, sizeof(_GLFWfbconfig));
     usableCount = 0;
+    XVisualInfo *vi;
+    XRenderPictFormat *pf;
 
     for (i = 0;  i < nativeCount;  i++)
     {
@@ -114,6 +116,15 @@ static GLFWbool chooseFBConfig(const _GLFWfbconfig* desired, GLXFBConfig* result
 
         if (_glfw.glx.ARB_framebuffer_sRGB || _glfw.glx.EXT_framebuffer_sRGB)
             u->sRGB = getFBConfigAttrib(n, GLX_FRAMEBUFFER_SRGB_CAPABLE_ARB);
+
+        vi = glXGetVisualFromFBConfig(_glfw.x11.display, n);
+        if (vi)
+        {
+            pf = XRenderFindVisualFormat(_glfw.x11.display, vi->visual);
+            if (pf && pf->direct.alphaMask > 0)
+                u->transparent = GLFW_TRUE;
+            XFree(vi);
+        }
 
         u->glx = n;
         usableCount++;
@@ -646,4 +657,3 @@ GLFWAPI GLXWindow glfwGetGLXWindow(GLFWwindow* handle)
 
     return window->context.glx.window;
 }
-

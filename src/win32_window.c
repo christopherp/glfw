@@ -735,6 +735,15 @@ static int createWindow(_GLFWwindow* window, const _GLFWwndconfig* wndconfig)
     window->win32.numer     = GLFW_DONT_CARE;
     window->win32.denom     = GLFW_DONT_CARE;
 
+    // Windows hack to get super fast transparent windows
+    if (_glfw_DwmEnableBlurBehindWindow && window->transparent) {   // aero glass
+        DWM_BLURBEHIND bb = { 0 };
+        bb.dwFlags = 3;                                             // DWM_BB_ENABLE | DWM_BB_BLURREGION;
+        bb.hRgnBlur = CreateRectRgn(0, 0, -1, -1);                  // hack
+        bb.fEnable = TRUE;
+        _glfw_DwmEnableBlurBehindWindow(window->win32.handle, &bb);
+    }
+
     return GLFW_TRUE;
 }
 

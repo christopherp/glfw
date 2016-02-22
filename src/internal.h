@@ -306,6 +306,7 @@ struct _GLFWfbconfig
     int         samples;
     GLFWbool    sRGB;
     GLFWbool    doublebuffer;
+    GLFWbool    transparent;
 
     // This is defined in the context API's context.h
     _GLFW_PLATFORM_FBCONFIG;
@@ -344,6 +345,7 @@ struct _GLFWwindow
     GLFWbool            autoIconify;
     GLFWbool            floating;
     GLFWbool            closed;
+    GLFWbool            transparent;
     void*               userPointer;
     GLFWvidmode         videoMode;
     _GLFWmonitor*       monitor;
