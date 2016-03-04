@@ -84,6 +84,7 @@ typedef BOOL (WINAPI * WGLDELETECONTEXT_T)(HGLRC);
 typedef PROC (WINAPI * WGLGETPROCADDRESS_T)(LPCSTR);
 typedef BOOL (WINAPI * WGLMAKECURRENT_T)(HDC,HGLRC);
 typedef BOOL (WINAPI * WGLSHARELISTS_T)(HGLRC,HGLRC);
+typedef void (WINAPI * GLREADPIXELS_T)(int x, int y, int width, int height, unsigned int format, unsigned int type, void* pixels);
 
 // opengl32.dll function pointer typedefs
 #define wglCreateContext _glfw.wgl.CreateContext
@@ -91,6 +92,7 @@ typedef BOOL (WINAPI * WGLSHARELISTS_T)(HGLRC,HGLRC);
 #define wglGetProcAddress _glfw.wgl.GetProcAddress
 #define wglMakeCurrent _glfw.wgl.MakeCurrent
 #define wglShareLists _glfw.wgl.ShareLists
+#define glReadPixels _glfw.wgl.GlReadPixels
 
 #define _GLFW_RECREATION_NOT_NEEDED 0
 #define _GLFW_RECREATION_REQUIRED   1
@@ -108,6 +110,7 @@ typedef struct _GLFWcontextWGL
     HDC       dc;
     HGLRC     handle;
     int       interval;
+    HDC       dcTransparent;
 
 } _GLFWcontextWGL;
 
@@ -122,6 +125,7 @@ typedef struct _GLFWlibraryWGL
     WGLGETPROCADDRESS_T                 GetProcAddress;
     WGLMAKECURRENT_T                    MakeCurrent;
     WGLSHARELISTS_T                     ShareLists;
+    GLREADPIXELS_T                      GlReadPixels;
 
     GLFWbool                            extensionsLoaded;
 
@@ -140,7 +144,6 @@ typedef struct _GLFWlibraryWGL
     GLFWbool                            EXT_create_context_es2_profile;
     GLFWbool                            ARB_create_context_robustness;
     GLFWbool                            ARB_context_flush_control;
-
 } _GLFWlibraryWGL;
 
 

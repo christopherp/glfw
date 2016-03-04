@@ -306,6 +306,8 @@ GLFWbool _glfwInitWGL(void)
         GetProcAddress(_glfw.wgl.instance, "wglMakeCurrent");
     _glfw.wgl.ShareLists = (WGLSHARELISTS_T)
         GetProcAddress(_glfw.wgl.instance, "wglShareLists");
+    _glfw.wgl.GlReadPixels = (GLREADPIXELS_T)
+        GetProcAddress(_glfw.wgl.instance, "glReadPixels");
 
     return GLFW_TRUE;
 }
@@ -348,6 +350,17 @@ GLFWbool _glfwCreateContextWGL(_GLFWwindow* window,
         _glfwInputError(GLFW_PLATFORM_ERROR,
                         "WGL: Failed to retrieve DC for window");
         return GLFW_FALSE;
+    }
+
+    if (window->transparent)
+    {
+        window->context.wgl.dcTransparent = CreateCompatibleDC(NULL);
+        if (!window->context.wgl.dcTransparent)
+        {
+            _glfwInputError(GLFW_PLATFORM_ERROR,
+                "WGL: Failed to retrieve DC for window");
+            return GLFW_FALSE;
+        }
     }
 
     if (!choosePixelFormat(window, fbconfig, &pixelFormat))
@@ -618,6 +631,43 @@ void _glfwPlatformMakeContextCurrent(_GLFWwindow* window)
 
 void _glfwPlatformSwapBuffers(_GLFWwindow* window)
 {
+    // TODO: Place this in a better location
+    if (window->transparent)
+    {
+        HBITMAP hBitmap = 0;
+        BITMAPINFO bmpInfo = { 0 };
+        BYTE* pixels = 0;
+        HGDIOBJ hPrevObj = 0;
+        POINT ptSrc = { 0, 0 };
+        int window_w, window_h;
+        BLENDFUNCTION blendFunc = { AC_SRC_OVER, 0, 255, AC_SRC_ALPHA };
+
+        _glfwPlatformGetFramebufferSize(window, &window_w, &window_h);
+        SIZE client = { window_w, window_h };
+
+        bmpInfo.bmiHeader.biBitCount = 32;
+        bmpInfo.bmiHeader.biWidth = window_w;
+        bmpInfo.bmiHeader.biHeight = window_h;
+        bmpInfo.bmiHeader.biPlanes = 1;
+        bmpInfo.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+        bmpInfo.bmiHeader.biCompression = BI_RGB;
+        hBitmap = CreateDIBSection(window->context.wgl.dcTransparent, &bmpInfo, DIB_RGB_COLORS, (void**)&pixels, NULL, 0);
+        if (!hBitmap || !pixels)
+        {
+            _glfwInputError(GLFW_PLATFORM_ERROR, "WGL: Failed to create bitmap for transparent window");
+            return;
+        }
+
+        glReadPixels(0, 0, window_w, window_h, /*GL_BGRA*/ 0x80E1, /*GL_UNSIGNED_BYTE*/ 0x1401, pixels);
+
+        hPrevObj = SelectObject(window->context.wgl.dcTransparent, hBitmap);
+        UpdateLayeredWindow(window->win32.handle, NULL, NULL, &client,
+            window->context.wgl.dcTransparent, &ptSrc, 0, &blendFunc, ULW_ALPHA);
+
+        SelectObject(window->context.wgl.dcTransparent, hPrevObj);
+        DeleteObject(hBitmap);
+    }
+
     // HACK: Use DwmFlush when desktop composition is enabled
     if (isCompositionEnabled() && !window->monitor)
     {
