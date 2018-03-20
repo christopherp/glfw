@@ -310,40 +310,26 @@ static void updateWindowStyles(const _GLFWwindow* window)
 //
 static void updateFramebufferTransparency(const _GLFWwindow* window)
 {
-    if (!IsWindowsVistaOrGreater())
-        return;
-
-    if (_glfwIsCompositionEnabledWin32())
+    // A transparent window can't seem to have decorations, at least on win10 creative.
+    // TODO: test other Windows versions with this new DwmExtendFrameIntoClientArea method
+    if (!window->decorated && _glfwIsCompositionEnabledWin32 && _glfwIsCompositionEnabledWin32())
     {
-        HRGN region = CreateRectRgn(0, 0, -1, -1);
-        DWM_BLURBEHIND bb = {0};
-        bb.dwFlags = DWM_BB_ENABLE | DWM_BB_BLURREGION;
-        bb.hRgnBlur = region;
-        bb.fEnable = TRUE;
+        const MARGINS marInset = { -1 };
 
-        if (SUCCEEDED(DwmEnableBlurBehindWindow(window->win32.handle, &bb)))
+        if (SUCCEEDED(DwmExtendFrameIntoClientArea(window->win32.handle, &marInset)))
         {
-            // Decorated windows don't repaint the transparent background
-            // leaving a trail behind animations
-            // HACK: Making the window layered with a transparency color key
-            //       seems to fix this.  Normally, when specifying
-            //       a transparency color key to be used when composing the
-            //       layered window, all pixels painted by the window in this
-            //       color will be transparent.  That doesn't seem to be the
-            //       case anymore, at least when used with blur behind window
-            //       plus negative region.
             LONG exStyle = GetWindowLongW(window->win32.handle, GWL_EXSTYLE);
             exStyle |= WS_EX_LAYERED;
             SetWindowLongW(window->win32.handle, GWL_EXSTYLE, exStyle);
 
-            // Using a color key not equal to black to fix the trailing
-            // issue.  When set to black, something is making the hit test
-            // not resize with the window frame.
-            SetLayeredWindowAttributes(window->win32.handle,
-                                       RGB(0, 193, 48), 255, LWA_COLORKEY);
-        }
+            LONG style = GetWindowLongW(window->win32.handle, GWL_STYLE);
+            // style = ( WS_TABSTOP | WS_GROUP | WS_SYSMENU | /* WS_THICKFRAME | WS_SYSMENU | WS_DLGFRAME  | */ WS_BORDER | WS_CLIPCHILDREN | WS_CLIPSIBLINGS);
+            style = WS_POPUP;
+            SetWindowLongW(window->win32.handle, GWL_STYLE, style);
 
-        DeleteObject(region);
+            SetLayeredWindowAttributes(window->win32.handle,
+                                       RGB(0, 0, 0), 255, LWA_ALPHA);
+        }
     }
     else
     {
@@ -1190,14 +1176,12 @@ void _glfwUnregisterWindowClassWin32(void)
 //
 GLFWbool _glfwIsCompositionEnabledWin32(void)
 {
-    if (IsWindowsVistaOrGreater())
-    {
-        BOOL enabled;
-        if (SUCCEEDED(DwmIsCompositionEnabled(&enabled)))
+    BOOL enabled;
+    if (DwmIsCompositionEnabled &&
+        SUCCEEDED(DwmIsCompositionEnabled(&enabled)))
             return enabled;
-    }
 
-    return FALSE;
+    return GLFW_FALSE;
 }
 
 
@@ -1597,7 +1581,9 @@ int _glfwPlatformWindowHovered(_GLFWwindow* window)
 
 int _glfwPlatformFramebufferTransparent(_GLFWwindow* window)
 {
-    return window->win32.transparent && _glfwIsCompositionEnabledWin32();
+    return window->win32.transparent
+        && _glfwIsCompositionEnabledWin32
+        && _glfwIsCompositionEnabledWin32();
 }
 
 void _glfwPlatformSetWindowResizable(_GLFWwindow* window, GLFWbool enabled)
