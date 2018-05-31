@@ -319,7 +319,7 @@ static void updateFramebufferTransparency(const _GLFWwindow* window)
         if (SUCCEEDED(DwmExtendFrameIntoClientArea(window->win32.handle, &marInset)))
         {
             LONG exStyle = GetWindowLongW(window->win32.handle, GWL_EXSTYLE);
-            exStyle |= WS_EX_LAYERED;
+            exStyle |= (WS_EX_LAYERED | WS_EX_TRANSPARENT);
             SetWindowLongW(window->win32.handle, GWL_EXSTYLE, exStyle);
 
             LONG style = GetWindowLongW(window->win32.handle, GWL_STYLE);
